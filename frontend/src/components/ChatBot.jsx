@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TypingEffect } from './TypingEffect';
+import UploadButton from './UploadButton';
 
 export default function Chatbot() {
     const [messages, setMessages] = useState([
@@ -43,7 +44,7 @@ export default function Chatbot() {
     return (
         <div className="flex flex-col items-center min-h-screen space-y-2 p-2">
             {/* Wiadomości */}
-            <div className="flex flex-col flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl overflow-y-auto max-h-[60vh]">
+            <div className="flex flex-col flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl overflow-y-auto max-h-[82vh]">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -81,19 +82,23 @@ export default function Chatbot() {
                         placeholder="Ask anything"
                         className="flex-grow p-3 bg-transparent font-primary focus:outline-none text-gray-700 placeholder-gray-400"
                     />
-                    {!isLoading ?
-                        <button
-                            onClick={sendMessage}
-                            className={`bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer}
-                        `}
-                        >
-                            Send
-                        </button>
-                        :
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-spin">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                    }
+                    <div className="flex items-center space-x-1">
+                        <UploadButton />
+                        {!isLoading ?
+                            <button
+                                onClick={sendMessage}
+                                className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+                                </svg>
+                            </button>
+                            :
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-spin">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

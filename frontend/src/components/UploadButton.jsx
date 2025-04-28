@@ -46,6 +46,11 @@ export default function UploadButton() {
 
             const result = await response.json();
             console.log('Sukces:', result);
+
+            setFile(null);
+            setFileContent("");
+            setShowInput(false);
+
         } catch (error) {
             console.error('Błąd:', error);
         }

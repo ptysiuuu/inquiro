@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from dbLogic import DocumentIn, get_db, get_embedding
 import os
 import requests
 
@@ -40,11 +41,16 @@ async def chat_with_openai(request: MessageRequest):
         "Content-Type": "application/json"
     }
 
+    context = await get_context(request.message)
+
+    if not context:
+        context = [{"role": "system", "content": "The user's query did not bring any results, inform them politely and answer based on the document to the best of your abilities."}]
+
+    full_message = context + [{"role": "user", "content": request.message}]
+    print(context)
     payload = {
         "model": "gpt-3.5-turbo",
-        "messages": [
-            {"role": "user", "content": request.message}
-        ]
+        "messages": full_message
     }
 
     try:
@@ -62,4 +68,41 @@ async def chat_with_openai(request: MessageRequest):
 
     except requests.RequestException as e:
         print(e.response.text)
-        raise HTTPException(status_code=500, detail=f"Błąd podczas komunikacji z OpenAI: {e}")
+        raise HTTPException(status_code=500, detail=f"Error while communicating with OpenAI: {e}")
+
+
+@app.post("/documents")
+async def add_document(doc: DocumentIn):
+    conn = await get_db()
+    try:
+        embedding = await get_embedding(doc.content)
+        await conn.execute(
+            "INSERT INTO documents (content, embedding) VALUES ($1, $2)",
+            doc.content, embedding
+        )
+        return {"status": "ok"}
+    finally:
+        await conn.close()
+
+
+async def get_context(query: str, top_k: int = 3):
+    conn = await get_db()
+    try:
+        query_embedding = await get_embedding(query)
+        rows = await conn.fetch(
+            """
+            SELECT id, content
+            FROM documents
+            WHERE embedding <-> $1 < 0.6
+            ORDER BY embedding <-> $1
+            LIMIT $2
+            """,
+            query_embedding, top_k
+        )
+        results = [{"id": r["id"], "content": r["content"]} for r in rows]
+
+        context = [{"role": "system", "content": doc['content']} for doc in results]
+
+        return context
+    finally:
+        await conn.close()

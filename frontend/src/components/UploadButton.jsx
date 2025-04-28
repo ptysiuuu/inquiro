@@ -4,6 +4,7 @@ export default function UploadButton() {
     const [file, setFile] = useState(null);
     const [showInput, setShowInput] = useState(false);
     const [fileContent, setFileContent] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
 
     const handleChangeFile = (event) => {
         const selectedFile = event.target.files[0];
@@ -20,6 +21,8 @@ export default function UploadButton() {
     };
 
     const handleUpload = async () => {
+        setShowInput(false);
+
         if (!file) {
             alert('Najpierw wybierz plik.');
             return;
@@ -47,9 +50,12 @@ export default function UploadButton() {
             const result = await response.json();
             console.log('Sukces:', result);
 
+            setShowPopup(true);
+
+            setTimeout(() => setShowPopup(false), 3000);
+
             setFile(null);
             setFileContent("");
-            setShowInput(false);
 
         } catch (error) {
             console.error('Błąd:', error);
@@ -62,6 +68,12 @@ export default function UploadButton() {
 
     return (
         <div className="relative inline-block">
+            {showPopup && (
+                <div className="absolute top-[-700px] left-[-450px] transform -translate-x-1/2 bg-green-500 text-white p-4 rounded shadow-lg w-[200px] text-center animate-pulse">
+                    Upload Succesfull!
+                </div>
+            )}
+
             <button
                 onClick={handleButtonClick}
                 className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
@@ -80,7 +92,7 @@ export default function UploadButton() {
                     )}
                     <label
                         htmlFor="files"
-                        className="block w-full rounded-full text-center py-2 border border-gray-600 text-white cursor-pointer hover:bg-gray-700 transition"
+                        className="font-primary block w-full rounded-full text-center py-2 border border-gray-600 text-stone-200 cursor-pointer hover:bg-gray-700 transition"
                     >
                         Select file
                     </label>

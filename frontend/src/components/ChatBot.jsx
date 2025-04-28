@@ -33,7 +33,7 @@ export default function Chatbot() {
             console.error('Error:', error);
             setMessages([...newMessages, { sender: 'bot', text: 'Error.' }]);
         } finally {
-            setIsLoading(false); // Ustawienie ładowania na false po otrzymaniu odpowiedzi
+            setIsLoading(false);
         }
     };
 

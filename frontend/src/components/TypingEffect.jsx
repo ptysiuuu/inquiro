@@ -1,4 +1,4 @@
-"use client"; // Informacja, że komponent ma być renderowany po stronie klienta
+"use client";
 
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';

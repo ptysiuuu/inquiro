@@ -49,7 +49,7 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
-            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl">
+            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-6xl">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -78,23 +78,23 @@ export default function Chatbot() {
             </div>
 
             <div className="flex justify-center w-full">
-                <div className="flex items-center w-full max-w-6xl bg-white rounded-2xl shadow-md px-4 py-2">
+                <div className="flex items-center w-full max-w-6xl bg-transparent border-2 border-white rounded-2xl shadow-md px-4 py-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything"
-                        className="flex-grow mr-2 p-3 bg-transparent font-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50 text-gray-700 placeholder-gray-400 transition-all duration-300"
+                        className="flex-grow mr-2 p-3 bg-transparent font-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-gray-700 placeholder-gray-400 transition-all duration-300"
                     />
                     <div className="flex items-center space-x-1">
                         <UploadButton />
                         {!isLoading ? (
                             <button
                                 onClick={sendMessage}
-                                className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
+                                className="bg-black dark:bg-white text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 dark:text-black">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
                                 </svg>
                             </button>
@@ -102,7 +102,7 @@ export default function Chatbot() {
                             <button
                                 className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-not-allowed"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-spin">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-spin dark:text-black">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                                 </svg>
                             </button>

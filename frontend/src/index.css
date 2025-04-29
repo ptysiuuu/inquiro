@@ -18,6 +18,23 @@ body {
     background-size: cover;
 }
 
+@keyframes fade {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    10%,
+    90% {
+        opacity: 1;
+    }
+}
+
+.animate-fade {
+    animation: fade 3s ease-in-out;
+}
+
 @theme {
     --font-primary: "Cal Sans", "sans-serif";
 }

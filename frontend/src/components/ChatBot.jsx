@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TypingEffect } from './TypingEffect';
 import UploadButton from './UploadButton';
 
@@ -6,10 +6,12 @@ export default function Chatbot() {
     const [messages, setMessages] = useState([
         { sender: 'bot', text: 'Hey! How can I help?' },
         { sender: 'user', text: 'What is Inquiro?' },
-        { sender: 'bot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!' }
+        { sender: 'bot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!' },
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    const messagesEndRef = useRef(null);
 
     const sendMessage = async () => {
         if (!input.trim()) return;
@@ -41,9 +43,13 @@ export default function Chatbot() {
         if (e.key === 'Enter') sendMessage();
     };
 
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
     return (
-        <div className="flex flex-col items-center min-h-screen space-y-2 p-2">
-            <div className="flex flex-col flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl overflow-y-auto max-h-[75vh]">
+        <div className="flex flex-col max-h-screen flex-grow h-full items-center space-y-2 p-2">
+            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -83,16 +89,16 @@ export default function Chatbot() {
                     />
                     <div className="flex items-center space-x-1">
                         <UploadButton />
-                        {!isLoading ?
+                        {!isLoading ? (
                             <button
                                 onClick={sendMessage}
                                 className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
                                 </svg>
                             </button>
-                            :
+                        ) : (
                             <button
                                 className="bg-black text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-not-allowed"
                             >
@@ -100,10 +106,12 @@ export default function Chatbot() {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                                 </svg>
                             </button>
-                        }
+                        )}
                     </div>
                 </div>
             </div>
+
+            <div ref={messagesEndRef} />
         </div>
     );
-};
+}

@@ -7,6 +7,14 @@ export default function Chatbot() {
         { sender: 'bot', text: 'Hey! How can I help?' },
         { sender: 'user', text: 'What is Inquiro?' },
         { sender: 'bot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!' },
+        { sender: 'bot', text: 'Hey! How can I help?' },
+        { sender: 'user', text: 'What is Inquiro?' },
+        { sender: 'bot', text: 'Hey! How can I help?' },
+        { sender: 'user', text: 'What is Inquiro?' },
+        { sender: 'bot', text: 'Hey! How can I help?' },
+        { sender: 'user', text: 'What is Inquiro?' },
+        { sender: 'bot', text: 'Hey! How can I help?' },
+        { sender: 'user', text: 'What is Inquiro?' },
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +57,7 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
-            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-6xl">
+            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-6xl scrollbar-custom">
                 {messages.map((msg, index) => (
                     <div
                         key={index}

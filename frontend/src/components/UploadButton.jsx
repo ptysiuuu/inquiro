@@ -107,7 +107,7 @@ export default function UploadButton() {
                     )}
                     <label
                         htmlFor="files"
-                        className="font-primary block w-full rounded-full text-center py-2 border border-gray-600 text-stone-200 cursor-pointer hover:bg-gray-700 transition"
+                        className="font-primary block w-full rounded-full text-center py-2 border-2 border-white text-stone-200 cursor-pointer hover:bg-gray-700 transition"
                     >
                         Select file
                     </label>

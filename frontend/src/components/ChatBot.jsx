@@ -43,7 +43,6 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col items-center min-h-screen space-y-2 p-2">
-            {/* Wiadomości */}
             <div className="flex flex-col flex-grow space-y-2 p-2 bg-[#F5F7FA] rounded-lg shadow-lg w-full max-w-6xl overflow-y-auto max-h-[75vh]">
                 {messages.map((msg, index) => (
                     <div
@@ -80,7 +79,7 @@ export default function Chatbot() {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything"
-                        className="flex-grow p-3 bg-transparent font-primary focus:outline-none text-gray-700 placeholder-gray-400"
+                        className="flex-grow mr-2 p-3 bg-transparent font-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-gray-700 placeholder-gray-400 transition-all duration-300"
                     />
                     <div className="flex items-center space-x-1">
                         <UploadButton />

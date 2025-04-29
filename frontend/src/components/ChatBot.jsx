@@ -7,14 +7,6 @@ export default function Chatbot() {
         { sender: 'bot', text: 'Hey! How can I help?' },
         { sender: 'user', text: 'What is Inquiro?' },
         { sender: 'bot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!' },
-        { sender: 'bot', text: 'Hey! How can I help?' },
-        { sender: 'user', text: 'What is Inquiro?' },
-        { sender: 'bot', text: 'Hey! How can I help?' },
-        { sender: 'user', text: 'What is Inquiro?' },
-        { sender: 'bot', text: 'Hey! How can I help?' },
-        { sender: 'user', text: 'What is Inquiro?' },
-        { sender: 'bot', text: 'Hey! How can I help?' },
-        { sender: 'user', text: 'What is Inquiro?' },
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);

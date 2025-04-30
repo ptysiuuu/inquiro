@@ -1,11 +1,8 @@
 import { auth, db } from "../config/firebase";
 import { collection, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
 
 
 export default function AddConversation() {
-    const navigate = useNavigate();
-
     const handleClick = async () => {
         const user = auth.currentUser;
         if (!user) return;
@@ -27,8 +24,6 @@ export default function AddConversation() {
                     timestamp: serverTimestamp()
                 }
             );
-
-            navigate(`/chat/${conversationRef.id}`);
         } catch (error) {
             console.error("Error while opening conversations:", error);
         }

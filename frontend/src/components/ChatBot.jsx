@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+
 import { TypingEffect } from './TypingEffect';
 import UploadButton from './UploadButton';
 import ChatDropdown from './ChatDropdown';
+import AddConversation from './AddConversation';
 
 import { auth } from '../config/firebase';
 
 export default function Chatbot() {
     const user = auth.currentUser;
+    const location = useLocation();
 
-    const [messages, setMessages] = useState([
-        { sender: 'bot', text: 'Hey! How can I help?' },
-        { sender: 'user', text: 'What is Inquiro?' },
-        { sender: 'bot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!' },
-    ]);
+    const isOnChatPage = location.pathname.startsWith("/chat");
+
+    const [messages, setMessages] = useState([])
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showConversations, setShowConversations] = useState(false);
@@ -72,6 +74,7 @@ export default function Chatbot() {
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
             <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 mr-1.5">
+                {isOnChatPage ? <AddConversation /> : undefined}
                 <button
                     className="hover:bg-gray-800 rounded-xl p-2 dark:hover:bg-stone-400 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white"
                     onClick={handleClickConversations}
@@ -93,15 +96,15 @@ export default function Chatbot() {
                     </svg>
                 </button>
             </div>
-            {showConversations ? <ChatDropdown /> : undefined}
+            {showConversations ? <ChatDropdown setMessages={setMessages} /> : undefined}
             <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
-                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${msg.senderId === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-xl p-3 rounded-lg font-primary ${msg.sender === 'user'
+                            className={`max-w-xl p-3 rounded-lg font-primary ${msg.senderId === 'user'
                                 ? 'bg-[#4F8EF7] text-white'
                                 : 'bg-[#A9B0C3] text-gray-700'
                                 }`}

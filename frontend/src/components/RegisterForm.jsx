@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 import { auth, db } from '../config/firebase';
 
 
@@ -23,6 +23,23 @@ export default function RegisterForm() {
                 email: user.email,
                 createdAt: new Date()
             });
+
+            const conversationRef = collection(db, "users", user.uid, "conversations");
+            const conversationDoc = await addDoc(conversationRef, {
+                title: "Initial Conversation",
+                createdAt: new Date(),
+            });
+
+            const messages = [
+                { senderId: 'chatbot', text: 'Hey! How can I help?', timestamp: new Date('2024-01-01T12:00:00Z') },
+                { senderId: 'user', text: 'What is Inquiro?', timestamp: new Date('2024-01-01T12:01:00Z') },
+                { senderId: 'chatbot', text: 'Inquiro is a RAG-based application that provides users with relevant answers based on their questions. Upload some documents and try it yourself!', timestamp: new Date('2024-01-01T12:02:00Z') },
+            ];
+
+            const messagesRef = collection(db, "users", user.uid, "conversations", conversationDoc.id, "messages");
+            for (const message of messages) {
+                await addDoc(messagesRef, message);
+            }
 
             setErrorCode("");
             navigate("/chat")

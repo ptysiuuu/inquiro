@@ -6,7 +6,6 @@ import { TypingEffect } from './TypingEffect';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import AddConversation from './AddConversation';
 
 export default function TopNavBar({ enableDarkMode, darkMode }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -55,7 +54,6 @@ export default function TopNavBar({ enableDarkMode, darkMode }) {
                     {userEmail && isOnChatPage ? <p
                         className="font-primary text-white rounded-xl px-4 py-2 w-fit"
                     >Logged in as: {userEmail}</p> : undefined}
-                    {isOnChatPage ? <AddConversation /> : undefined}
                     {isLoggedIn ? (
                         <button
                             onClick={handleLogout}

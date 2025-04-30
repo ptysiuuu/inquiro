@@ -1,3 +1,5 @@
+import { NavLink } from 'react-router-dom';
+
 import logo from '../assets/Inquiro_logo_no_bg.png';
 import { TypingEffect } from './TypingEffect';
 
@@ -13,10 +15,16 @@ export default function TopNavBar({ enableDarkMode, darkMode }) {
                     <img src={logo} class="w-22 h-22 object-cover dark:bg-stone-200 dark:rounded-2xl" alt="Inquiro Logo" />
                     <TypingEffect text="Inquiro" textColor="text-stone-100" fontSize="text-6xl" />
                 </div>
-                <div className="flex ml-auto">
-                    <ul class="font-medium flex items-end flex-col p-4 md:p-0 mt-4 rounded-lg bg-gray-50rtl:space-x-reverse dark:bg-gray-800 md:dark:bg-gray-900">
+                <div className="flex items-center ml-auto space-x-10">
+                    <NavLink
+                        to="/auth"
+                        className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
+                    >
+                        Login
+                    </NavLink>
+                    <ul className="flex items-center space-x-2 dark:bg-transparent">
                         <li>
-                            <button className=" hover:bg-gray-800  rounded-xl p-2 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white dark:hover:bg-stone-400"
+                            <button className=" hover:bg-gray-800 rounded-xl p-2 dark:hover:bg-stone-400 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white"
                                 onClick={handleClick}
                             >
                                 {!darkMode ? (

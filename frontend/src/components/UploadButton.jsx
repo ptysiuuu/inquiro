@@ -82,7 +82,7 @@ export default function UploadButton() {
             {!uploadLoading ?
                 <button
                     onClick={handleButtonClick}
-                    className="bg-black dark:bg-white text-white font-primary p-2 rounded-full hover:bg-gray-800 transition cursor-pointer"
+                    className="bg-black dark:bg-white text-white font-primary p-2 dark:hover:bg-stone-400 rounded-full hover:bg-gray-800 transition cursor-pointer"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 dark:text-black">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />

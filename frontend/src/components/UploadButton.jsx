@@ -99,7 +99,7 @@ export default function UploadButton() {
 
             }
             {showInput && (
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black p-4 rounded shadow-lg w-[150px]">
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black p-4 rounded shadow-lg w-[150px] fade-in-scale">
                     {file && (
                         <div className="mb-2 text-sm text-gray-400">
                             Selected file: {file.name}

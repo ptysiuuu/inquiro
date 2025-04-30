@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TypingEffect } from './TypingEffect';
 import UploadButton from './UploadButton';
+import ChatDropdown from './ChatDropdown';
 
 import { auth } from '../config/firebase';
 
@@ -14,6 +15,7 @@ export default function Chatbot() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showConversations, setShowConversations] = useState(false);
 
     const messagesEndRef = useRef(null);
 
@@ -54,6 +56,10 @@ export default function Chatbot() {
         if (e.key === 'Enter') sendMessage();
     };
 
+    const handleClickConversations = () => {
+        setShowConversations(prev => !prev);
+    }
+
     useEffect(() => {
         setTimeout(() => {
             if (messagesEndRef.current) {
@@ -65,6 +71,29 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
+            <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 mr-1.5">
+                <button
+                    className="hover:bg-gray-800 rounded-xl p-2 dark:hover:bg-stone-400 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white"
+                    onClick={handleClickConversations}
+                    title='Show Chats'
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className={`size-6 text-white dark:text-black transition-transform duration-300 ${showConversations ? "rotate-90" : "rotate-0"}`}
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
+                        />
+                    </svg>
+                </button>
+            </div>
+            {showConversations ? <ChatDropdown /> : undefined}
             <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
                 {messages.map((msg, index) => (
                     <div
@@ -126,7 +155,6 @@ export default function Chatbot() {
                     </div>
                 </div>
             </div>
-
             <div ref={messagesEndRef} />
         </div>
     );

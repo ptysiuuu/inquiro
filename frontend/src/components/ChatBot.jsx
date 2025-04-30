@@ -49,14 +49,14 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
-            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-6xl scrollbar-custom">
+            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
                 {messages.map((msg, index) => (
                     <div
                         key={index}
                         className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-xs p-3 rounded-lg font-primary ${msg.sender === 'user'
+                            className={`max-w-xl p-3 rounded-lg font-primary ${msg.sender === 'user'
                                 ? 'bg-[#4F8EF7] text-white'
                                 : 'bg-[#A9B0C3] text-gray-700'
                                 }`}
@@ -78,7 +78,7 @@ export default function Chatbot() {
             </div>
 
             <div className="flex justify-center w-full">
-                <div className="flex items-center w-full max-w-6xl bg-transparent border-2 border-white rounded-2xl shadow-md px-4 py-2">
+                <div className="flex items-center w-full max-w-7xl bg-transparent border-2 border-white rounded-2xl shadow-md px-4 py-2">
                     <input
                         type="text"
                         value={input}

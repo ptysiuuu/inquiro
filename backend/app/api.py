@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from dbLogic import DocumentIn, get_db, get_embedding
+from auth_utils import get_current_user
 import os
 import requests
 
@@ -35,7 +36,7 @@ async def read_root() -> dict:
     return {"message": "Hello"}
 
 @app.post("/chat")
-async def chat_with_openai(request: MessageRequest):
+async def chat_with_openai(request: MessageRequest, user=Depends(get_current_user)):
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json"
@@ -44,7 +45,7 @@ async def chat_with_openai(request: MessageRequest):
     context = await get_context(request.message)
 
     if not context:
-        context = [{"role": "system", "content": "The user's query did not bring any results, inform them politely and answer based on the document to the best of your abilities."}]
+        context = [{"role": "system", "content": "The user's query did not bring any results, inform them politely and answer to the best of your abilities."}]
 
     full_message = context + [{"role": "user", "content": request.message}]
     print(context)
@@ -72,7 +73,7 @@ async def chat_with_openai(request: MessageRequest):
 
 
 @app.post("/documents")
-async def add_document(doc: DocumentIn):
+async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
     conn = await get_db()
     try:
         embedding = await get_embedding(doc.content)

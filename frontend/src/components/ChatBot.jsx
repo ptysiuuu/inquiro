@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TypingEffect } from './TypingEffect';
 import UploadButton from './UploadButton';
 
+import { auth } from '../config/firebase';
+
 export default function Chatbot() {
+    const user = auth.currentUser;
+
     const [messages, setMessages] = useState([
         { sender: 'bot', text: 'Hey! How can I help?' },
         { sender: 'user', text: 'What is Inquiro?' },
@@ -14,28 +18,35 @@ export default function Chatbot() {
     const messagesEndRef = useRef(null);
 
     const sendMessage = async () => {
-        if (!input.trim()) return;
+        if (user) {
+            const idToken = await user.getIdToken();
 
-        const newMessages = [...messages, { sender: 'user', text: input }];
-        setMessages(newMessages);
-        let inputData = input;
-        setInput('');
-        setIsLoading(true);
+            if (!input.trim()) return;
 
-        try {
-            const response = await fetch('http://localhost:8000/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: inputData }),
-            });
+            const newMessages = [...messages, { sender: 'user', text: input }];
+            setMessages(newMessages);
+            let inputData = input;
+            setInput('');
+            setIsLoading(true);
 
-            const data = await response.json();
-            setMessages([...newMessages, { sender: 'bot', text: data.reply }]);
-        } catch (error) {
-            console.error('Error:', error);
-            setMessages([...newMessages, { sender: 'bot', text: 'Error.' }]);
-        } finally {
-            setIsLoading(false);
+            try {
+                const response = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`,
+                    },
+                    body: JSON.stringify({ message: inputData }),
+                });
+
+                const data = await response.json();
+                setMessages([...newMessages, { sender: 'bot', text: data.reply }]);
+            } catch (error) {
+                console.error('Error:', error);
+                setMessages([...newMessages, { sender: 'bot', text: 'Error.' }]);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -44,7 +55,12 @@ export default function Chatbot() {
     };
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            if (messagesEndRef.current) {
+                console.log('Scrolling to messages end...');
+                messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     }, [messages]);
 
     return (
@@ -85,7 +101,7 @@ export default function Chatbot() {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything"
-                        className="flex-grow mr-2 p-3 bg-transparent font-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-gray-700 placeholder-gray-400 transition-all duration-300"
+                        className="flex-grow mr-2 p-3 bg-transparent font-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-white placeholder-white transition-all duration-300"
                     />
                     <div className="flex items-center space-x-1">
                         <UploadButton />

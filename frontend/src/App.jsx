@@ -12,7 +12,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="chat" replace />,
+        element: <Navigate to="auth" replace />,
       },
       {
         path: 'auth',

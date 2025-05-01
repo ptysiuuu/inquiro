@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { db, auth } from '../config/firebase';
 import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
 
-export default function ChatDropdown({ setMessages }) {
-    const [conversations, setConversations] = useState([]);
+export default function ChatDropdown({ selectConversation, conversations, setConversations }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -39,23 +38,7 @@ export default function ChatDropdown({ setMessages }) {
     }, []);
 
     const handleConversationClick = async (conversation) => {
-        try {
-            const messagesRef = collection(
-                db,
-                "users",
-                auth.currentUser.uid,
-                "conversations",
-                conversation.id,
-                "messages"
-            );
-            const q = query(messagesRef, orderBy("timestamp"));
-            const querySnapshot = await getDocs(q);
-            const fetchedMessages = querySnapshot.docs.map(doc => doc.data());
-
-            setMessages(fetchedMessages);
-        } catch (error) {
-            console.error("Error while fetching messages: ", error);
-        }
+        selectConversation(conversation);
     };
 
     const deleteConversationWithMessages = async (conversationId) => {
@@ -90,10 +73,17 @@ export default function ChatDropdown({ setMessages }) {
             await deleteConversationWithMessages(conversationId);
 
             setConversations(prevConversations => {
-                const updatedConversations = prevConversations.filter(conversation => conversation.id !== conversationId);
+                const updatedConversations = prevConversations
+                    .filter(conversation => conversation.id !== conversationId);
 
-                if (updatedConversations.length === 0) {
-                    setMessages([]);
+                if (updatedConversations.length > 0) {
+                    const sortedByNewest = [...updatedConversations].sort((a, b) => {
+                        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+                        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+                        return dateB - dateA;
+                    });
+
+                    selectConversation(sortedByNewest[0]);
                 }
 
                 return updatedConversations;
@@ -104,7 +94,7 @@ export default function ChatDropdown({ setMessages }) {
     };
 
     return (
-        <div className="font-primary absolute right-0 mt-14 mr-4 w-60 bg-black text-white shadow-lg rounded-lg max-h-60 overflow-y-auto z-50 transition-opacity duration-300 animate-in fade-in-scale">
+        <div className="scrollbar-custom font-primary absolute right-0 mt-14 mr-4 w-60 bg-black text-white shadow-lg rounded-lg max-h-4/5 overflow-y-auto z-50 transition-opacity duration-300 animate-in fade-in-scale">
             {isLoading ? (
                 <div className="flex flex-col items-center p-4">
                     <p className="mb-2">Fetching conversations...</p>

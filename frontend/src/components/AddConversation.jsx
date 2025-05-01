@@ -2,13 +2,13 @@ import { auth, db } from "../config/firebase";
 import { collection, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 
-export default function AddConversation() {
+export default function AddConversation({ setConversations, selectConversation }) {
     const handleClick = async () => {
         const user = auth.currentUser;
         if (!user) return;
 
         try {
-            const conversationRef = await addDoc(
+            const conversationDocRef = await addDoc(
                 collection(db, "users", user.uid, "conversations"),
                 {
                     createdAt: serverTimestamp(),
@@ -16,14 +16,24 @@ export default function AddConversation() {
                 }
             );
 
+            const newConversation = {
+                id: conversationDocRef.id,
+                createdAt: new Date(),
+                participants: [user.uid, "chatbot"]
+            };
+
             await setDoc(
-                doc(db, "users", user.uid, "conversations", conversationRef.id, "messages", "welcome"),
+                doc(db, "users", user.uid, "conversations", conversationDocRef.id, "messages", "welcome"),
                 {
                     senderId: "chatbot",
                     text: "Hey! How can I help you?",
                     timestamp: serverTimestamp()
                 }
             );
+
+            setConversations(prev => [...prev, newConversation]);
+
+            selectConversation(newConversation);
         } catch (error) {
             console.error("Error while opening conversations:", error);
         }

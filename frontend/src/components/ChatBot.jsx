@@ -6,7 +6,8 @@ import UploadButton from './UploadButton';
 import ChatDropdown from './ChatDropdown';
 import AddConversation from './AddConversation';
 
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 export default function Chatbot() {
     const user = auth.currentUser;
@@ -14,12 +15,45 @@ export default function Chatbot() {
 
     const isOnChatPage = location.pathname.startsWith("/chat");
 
-    const [messages, setMessages] = useState([])
+    const [messages, setMessages] = useState([]);
+    const [selectedConversation, setSelectedConverastion] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showConversations, setShowConversations] = useState(false);
+    const [conversations, setConversations] = useState([]);
 
     const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        if (!selectedConversation || !selectedConversation.id) return;
+
+        const fetchMessages = async () => {
+            try {
+                const messagesRef = collection(
+                    db,
+                    "users",
+                    auth.currentUser.uid,
+                    "conversations",
+                    selectedConversation.id,
+                    "messages"
+                );
+
+                const q = query(messagesRef, orderBy("timestamp"));
+                const querySnapshot = await getDocs(q);
+
+                const fetchedMessages = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+
+                setMessages(fetchedMessages);
+            } catch (error) {
+                console.error("Error while fetching messages: ", error);
+            }
+        };
+
+        fetchMessages();
+    }, [selectedConversation]);
 
     const sendMessage = async () => {
         if (user) {
@@ -27,7 +61,7 @@ export default function Chatbot() {
 
             if (!input.trim()) return;
 
-            const newMessages = [...messages, { sender: 'user', text: input }];
+            const newMessages = [...messages, { senderId: 'user', text: input }];
             setMessages(newMessages);
             let inputData = input;
             setInput('');
@@ -74,7 +108,10 @@ export default function Chatbot() {
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
             <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 mr-1.5">
-                {isOnChatPage ? <AddConversation /> : undefined}
+                {isOnChatPage ? <AddConversation
+                    setConversations={setConversations}
+                    selectConversation={setSelectedConverastion}
+                /> : undefined}
                 <button
                     className="hover:bg-gray-800 rounded-xl p-2 dark:hover:bg-stone-400 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white"
                     onClick={handleClickConversations}
@@ -96,7 +133,11 @@ export default function Chatbot() {
                     </svg>
                 </button>
             </div>
-            {showConversations ? <ChatDropdown setMessages={setMessages} /> : undefined}
+            {showConversations ? <ChatDropdown
+                selectConversation={setSelectedConverastion}
+                setConversations={setConversations}
+                conversations={conversations}
+            /> : undefined}
             <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
                 {messages.map((msg, index) => (
                     <div

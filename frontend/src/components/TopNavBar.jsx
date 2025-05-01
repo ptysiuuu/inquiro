@@ -54,22 +54,14 @@ export default function TopNavBar({ enableDarkMode, darkMode }) {
                     {userEmail && isOnChatPage ? <p
                         className="font-primary text-white rounded-xl px-4 py-2 w-fit"
                     >Logged in as: {userEmail}</p> : undefined}
-                    {isLoggedIn ? (
+                    {isLoggedIn && (
                         <button
                             onClick={handleLogout}
                             className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
                         >
                             Logout
                         </button>
-                    ) : (
-                        <NavLink
-                            to="/auth"
-                            className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
-                        >
-                            Login
-                        </NavLink>
                     )}
-
                     <button
                         className="hover:bg-gray-800 rounded-xl p-2 dark:hover:bg-stone-400 bg-black shadow-md transition duration-200 cursor-pointer dark:bg-white"
                         onClick={handleClick}

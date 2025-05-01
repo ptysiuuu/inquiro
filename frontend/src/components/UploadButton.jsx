@@ -4,11 +4,10 @@ import Popup from "./Popup";
 
 import { auth } from "../config/firebase";
 
-export default function UploadButton() {
+export default function UploadButton({ showUploadInput, setShowUploadInput, setRefresh }) {
     const user = auth.currentUser;
 
     const [file, setFile] = useState(null);
-    const [showInput, setShowInput] = useState(false);
     const [fileContent, setFileContent] = useState("");
     const [showPopup, setShowPopup] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
@@ -35,7 +34,7 @@ export default function UploadButton() {
             return;
         }
 
-        setShowInput(false);
+        setShowUploadInput(false);
         setUploadLoading(true);
 
         try {
@@ -48,7 +47,7 @@ export default function UploadButton() {
 
             const response = await fetch('http://localhost:8000/documents', {
                 method: 'POST',
-                body: JSON.stringify({ content }),
+                body: JSON.stringify({ content, name: file.name }),
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${idToken}`,
@@ -66,6 +65,7 @@ export default function UploadButton() {
 
             setFile(null);
             setFileContent("");
+            setRefresh(true);
 
         } catch (error) {
             console.error('Error:', error);
@@ -78,7 +78,7 @@ export default function UploadButton() {
     };
 
     const handleButtonClick = () => {
-        setShowInput(prev => !prev);
+        setShowUploadInput(prev => !prev);
     };
 
     return (
@@ -103,7 +103,7 @@ export default function UploadButton() {
                 </button>
 
             }
-            {showInput && (
+            {showUploadInput && (
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black p-4 rounded shadow-lg w-[150px] fade-in-scale">
                     {file && (
                         <div className="font-primary mb-2 text-sm text-gray-400">

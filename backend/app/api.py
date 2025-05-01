@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -81,8 +81,8 @@ async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
     try:
         embedding = await get_embedding(doc.content)
         await conn.execute(
-            "INSERT INTO documents (content, embedding, user_id) VALUES ($1, $2, $3)",
-            doc.content, embedding, user_id
+            "INSERT INTO documents (content, embedding, user_id, name) VALUES ($1, $2, $3, $4)",
+            doc.content, embedding, user_id, doc.name
         )
         return {"status": "ok"}
     finally:
@@ -94,17 +94,39 @@ async def get_documents(user=Depends(get_current_user)):
     user_id = user['user_id']
     conn = await get_db()
     try:
-        rows = await conn.execute(
+        rows = await conn.fetch(
             """
-            SELECT id, content, user_id
+            SELECT id, content, user_id, name
             FROM documents
             WHERE user_id = $1
             """,
             user_id
         )
-        results = [{"id": r["id"], "content": r["content"]} for r in rows]
+        results = [{"id": r["id"], "content": r["content"], "name": r["name"]} for r in rows]
 
         return {"docs": results}
+    finally:
+        await conn.close()
+
+
+@app.delete("/documents/{document_id}")
+async def delete_document(document_id: int, user=Depends(get_current_user)):
+    user_id = user['user_id']
+    conn = await get_db()
+    try:
+        deleted = await conn.fetchrow(
+            """
+            DELETE FROM documents
+            WHERE id = $1 AND user_id = $2
+            RETURNING id, name, content
+            """,
+            document_id, user_id
+        )
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        return deleted
+
     finally:
         await conn.close()
 

@@ -14,6 +14,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 class DocumentIn(BaseModel):
     content: str
+    name: str
 
 async def get_db():
     conn = await asyncpg.connect(DATABASE_URL)

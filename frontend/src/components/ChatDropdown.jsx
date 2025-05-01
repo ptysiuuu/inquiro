@@ -30,7 +30,7 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
             } catch (error) {
                 console.error("Error while loading conversations: ", error);
             } finally {
-                setIsLoading(false);
+                setTimeout(() => setIsLoading(false), 1000);
             }
         };
 
@@ -68,6 +68,8 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
                 return;
             }
 
+            setIsLoading(true);
+
             const user = auth.currentUser;
             if (!user) return;
 
@@ -91,6 +93,8 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
             });
         } catch (error) {
             console.error("Error while deleting conversation: ", error);
+        } finally {
+            setTimeout(() => setIsLoading(false), 1000);
         }
     };
 
@@ -109,7 +113,7 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
             ) : (
                 <div>
                     {conversations.length > 0 ? (
-                        <div className="flex flex-col border-white border-3">
+                        <div className="flex flex-col">
                             {conversations.map((conversation) => (
                                 <div key={conversation.id} className="flex justify-between items-center">
                                     <button
@@ -119,7 +123,7 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
                                         {conversation.title || "Bez tytułu"}
                                     </button>
                                     <button
-                                        className="text-red-500 ml-2 p-1 hover:bg-gray-800 rounded cursor-pointer"
+                                        className="text-red-500 ml-2 mr-1 p-1 hover:bg-gray-800 rounded cursor-pointer"
                                         onClick={() => handleDeleteConversation(conversation.id)}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

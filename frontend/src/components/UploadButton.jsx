@@ -1,7 +1,12 @@
 import { useState } from "react";
+
 import Popup from "./Popup";
 
+import { auth } from "../config/firebase";
+
 export default function UploadButton() {
+    const user = auth.currentUser;
+
     const [file, setFile] = useState(null);
     const [showInput, setShowInput] = useState(false);
     const [fileContent, setFileContent] = useState("");
@@ -34,6 +39,7 @@ export default function UploadButton() {
         setUploadLoading(true);
 
         try {
+            const idToken = await user.getIdToken();
             const content = await readFileContent(file);
             setFileContent(content);
 
@@ -45,6 +51,7 @@ export default function UploadButton() {
                 body: JSON.stringify({ content }),
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`,
                 },
             });
 

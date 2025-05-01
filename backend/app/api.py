@@ -37,12 +37,14 @@ async def read_root() -> dict:
 
 @app.post("/chat")
 async def chat_with_openai(request: MessageRequest, user=Depends(get_current_user)):
+    user_id = user['user_id']
+
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
 
-    context = await get_context(request.message)
+    context = await get_context(request.message, user_id)
 
     if not context:
         context = [{"role": "system", "content": "The user's query did not bring any results, inform them politely and answer to the best of your abilities."}]
@@ -74,31 +76,32 @@ async def chat_with_openai(request: MessageRequest, user=Depends(get_current_use
 
 @app.post("/documents")
 async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
+    user_id = user['user_id']
     conn = await get_db()
     try:
         embedding = await get_embedding(doc.content)
         await conn.execute(
-            "INSERT INTO documents (content, embedding) VALUES ($1, $2)",
-            doc.content, embedding
+            "INSERT INTO documents (content, embedding, user_id) VALUES ($1, $2, $3)",
+            doc.content, embedding, user_id
         )
         return {"status": "ok"}
     finally:
         await conn.close()
 
 
-async def get_context(query: str, top_k: int = 3):
+async def get_context(query: str, user_id, top_k: int = 3):
     conn = await get_db()
     try:
         query_embedding = await get_embedding(query)
         rows = await conn.fetch(
             """
-            SELECT id, content
+            SELECT id, content, user_id
             FROM documents
-            WHERE embedding <-> $1 < 0.6
+            WHERE embedding <-> $1 < 0.6 AND user_id = $3
             ORDER BY embedding <-> $1
             LIMIT $2
             """,
-            query_embedding, top_k
+            query_embedding, top_k, user_id
         )
         results = [{"id": r["id"], "content": r["content"]} for r in rows]
 

@@ -96,6 +96,11 @@ export default function Chatbot() {
             setInput('');
             setIsLoading(true);
 
+            const messageHistory = messages.slice(-10).map(msg => ({
+                role: msg.senderId === 'user' ? 'user' : 'bot',
+                content: msg.text
+            }));
+
             try {
                 const response = await fetch('http://localhost:8000/chat', {
                     method: 'POST',
@@ -103,7 +108,10 @@ export default function Chatbot() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${idToken}`,
                     },
-                    body: JSON.stringify({ message: inputData }),
+                    body: JSON.stringify({
+                        message: inputData,
+                        history: messageHistory,
+                    }),
                 });
 
                 const data = await response.json();
@@ -118,6 +126,10 @@ export default function Chatbot() {
 
                 setMessages([...newMessages, botMessage]);
             } catch (error) {
+                if (error.response) {
+                    console.error('Error response:', error.response);
+                    console.error('Error data:', await error.response.text());
+                }
                 console.error('Error:', error);
                 const errorMessage = {
                     senderId: 'bot',

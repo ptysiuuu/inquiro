@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from dbLogic import DocumentIn, get_db, get_embedding
+from typing import List
 from auth_utils import get_current_user
 import os
 import requests
@@ -11,8 +12,14 @@ import requests
 load_dotenv()
 app = FastAPI()
 
+
+class MessageHistoryItem(BaseModel):
+    role: str  # 'user' or 'bot'
+    content: str
+
 class MessageRequest(BaseModel):
     message: str
+    history: List[MessageHistoryItem]
 
 
 origins = [
@@ -35,6 +42,7 @@ app.add_middleware(
 async def read_root() -> dict:
     return {"message": "Hello"}
 
+
 @app.post("/chat")
 async def chat_with_openai(request: MessageRequest, user=Depends(get_current_user)):
     user_id = user['user_id']
@@ -43,11 +51,30 @@ async def chat_with_openai(request: MessageRequest, user=Depends(get_current_use
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
+    context = [
+                {
+                "role": "system",
+                "content": "You are a helpful assistant designed to answer questions based on the provided context from documents submited by users."
+                },
+            ]
 
-    context = await get_context(request.message, user_id)
+    for item in request.history:
+        if isinstance(item, MessageHistoryItem):
+            if item.role == "bot":
+                item.role = "assistant"
+            context.append(item.dict())
 
-    if not context:
-        context = [{"role": "system", "content": "The user's query did not bring any results, inform them politely and answer to the best of your abilities."}]
+    docs = await get_context(request.message, user_id)
+
+    if not docs:
+        context += [
+            {
+                "role": "system",
+                "content": "The user's query did not match any of his documents, inform them politely and answer to the best of your abilities."
+            }
+            ]
+    else:
+        context += docs
 
     full_message = context + [{"role": "user", "content": request.message}]
     print(context)

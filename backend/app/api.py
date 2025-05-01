@@ -89,6 +89,26 @@ async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
         await conn.close()
 
 
+@app.get("/documents")
+async def get_documents(user=Depends(get_current_user)):
+    user_id = user['user_id']
+    conn = await get_db()
+    try:
+        rows = await conn.execute(
+            """
+            SELECT id, content, user_id
+            FROM documents
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+        results = [{"id": r["id"], "content": r["content"]} for r in rows]
+
+        return {"docs": results}
+    finally:
+        await conn.close()
+
+
 async def get_context(query: str, user_id, top_k: int = 3):
     conn = await get_db()
     try:

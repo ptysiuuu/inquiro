@@ -76,10 +76,10 @@ export default function AddConversation({ setConversations, selectConversation }
                             className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 p-2 border-2 text-white placeholder:text-white border-white rounded-2xl  dark:text-black"
                         />
                         <button
-                            className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
+                            className="bg-black max-h-12 dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
                             onClick={handleClick}
                         >
-                            Create Chat
+                            Create
                         </button>
                     </div>
                 </>

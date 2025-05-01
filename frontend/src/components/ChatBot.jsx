@@ -7,7 +7,7 @@ import ChatDropdown from './ChatDropdown';
 import AddConversation from './AddConversation';
 
 import { auth, db } from '../config/firebase';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, serverTimestamp, addDoc } from 'firebase/firestore';
 import Popup from './Popup';
 
 export default function Chatbot() {
@@ -63,12 +63,30 @@ export default function Chatbot() {
             setTimeout(() => setShowPopup(false), 3000);
             return;
         }
+
         if (user) {
             const idToken = await user.getIdToken();
 
             if (!input.trim()) return;
 
-            const newMessages = [...messages, { senderId: 'user', text: input }];
+            const userMessage = {
+                senderId: 'user',
+                text: input,
+                timestamp: serverTimestamp(),
+            };
+
+            const messagesRef = collection(
+                db,
+                "users",
+                user.uid,
+                "conversations",
+                selectedConversation.id,
+                "messages"
+            );
+
+            await addDoc(messagesRef, userMessage);
+
+            const newMessages = [...messages, userMessage];
             setMessages(newMessages);
             let inputData = input;
             setInput('');
@@ -85,10 +103,27 @@ export default function Chatbot() {
                 });
 
                 const data = await response.json();
-                setMessages([...newMessages, { sender: 'bot', text: data.reply }]);
+
+                const botMessage = {
+                    senderId: 'bot',
+                    text: data.reply,
+                    timestamp: serverTimestamp(),
+                };
+
+                await addDoc(messagesRef, botMessage);
+
+                setMessages([...newMessages, botMessage]);
             } catch (error) {
                 console.error('Error:', error);
-                setMessages([...newMessages, { sender: 'bot', text: 'Error.' }]);
+                const errorMessage = {
+                    senderId: 'bot',
+                    text: 'Error.',
+                    timestamp: serverTimestamp(),
+                };
+
+                await addDoc(messagesRef, errorMessage);
+
+                setMessages([...newMessages, errorMessage]);
             } finally {
                 setIsLoading(false);
             }

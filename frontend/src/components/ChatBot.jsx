@@ -8,6 +8,7 @@ import AddConversation from './AddConversation';
 
 import { auth, db } from '../config/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import Popup from './Popup';
 
 export default function Chatbot() {
     const user = auth.currentUser;
@@ -21,6 +22,7 @@ export default function Chatbot() {
     const [isLoading, setIsLoading] = useState(false);
     const [showConversations, setShowConversations] = useState(false);
     const [conversations, setConversations] = useState([]);
+    const [showPopup, setShowPopup] = useState(false);
 
     const messagesEndRef = useRef(null);
 
@@ -56,6 +58,11 @@ export default function Chatbot() {
     }, [selectedConversation]);
 
     const sendMessage = async () => {
+        if (Array.isArray(selectedConversation) && selectedConversation.length === 0) {
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+            return;
+        }
         if (user) {
             const idToken = await user.getIdToken();
 
@@ -107,7 +114,11 @@ export default function Chatbot() {
 
     return (
         <div className="flex flex-col max-h-screen min-h-[80vh] flex-grow h-full items-center space-y-2 p-2">
+            {showPopup && <Popup textFail="Select a chat first" textSucces="" error={true} />}
             <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 mr-1.5">
+                <p className="font-primary text-white rounded-xl px-4 py-2 w-fit">
+                    {selectedConversation.title != undefined ? `Selected chat: ${selectedConversation.title}` : "Select a chat"}
+                </p>
                 {isOnChatPage ? <AddConversation
                     setConversations={setConversations}
                     selectConversation={setSelectedConverastion}
@@ -137,6 +148,7 @@ export default function Chatbot() {
                 selectConversation={setSelectedConverastion}
                 setConversations={setConversations}
                 conversations={conversations}
+                show={setShowConversations}
             /> : undefined}
             <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
                 {messages.map((msg, index) => (

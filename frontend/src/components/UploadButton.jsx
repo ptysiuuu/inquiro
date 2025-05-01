@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Popup from "./Popup";
 
 export default function UploadButton() {
     const [file, setFile] = useState(null);
@@ -23,13 +24,14 @@ export default function UploadButton() {
     };
 
     const handleUpload = async () => {
-        setShowInput(false);
-        setUploadLoading(true);
 
         if (!file) {
-            alert('Najpierw wybierz plik.');
+            alert('Choose a file');
             return;
         }
+
+        setShowInput(false);
+        setUploadLoading(true);
 
         try {
             const content = await readFileContent(file);
@@ -47,7 +49,7 @@ export default function UploadButton() {
             });
 
             if (!response.ok) {
-                throw new Error('Błąd podczas wysyłania pliku');
+                throw new Error('Error while sending file');
             }
 
             const result = await response.json();
@@ -59,7 +61,7 @@ export default function UploadButton() {
             setFileContent("");
 
         } catch (error) {
-            console.error('Błąd:', error);
+            console.error('Error:', error);
             setUploadError(true);
             setShowPopup(true);
             setTimeout(() => setShowPopup(false), 3000);
@@ -74,11 +76,7 @@ export default function UploadButton() {
 
     return (
         <div className="relative inline-block">
-            {showPopup && (
-                <div className={`animate-in fade-in duration-1000 font-primary fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white p-4 rounded shadow-lg w-[200px] text-center animate-fade z-50 ${uploadError ? 'bg-red-500' : 'bg-green-500'}`}>
-                    {uploadError ? "Upload Failed" : "Upload Succesfull!"}
-                </div>
-            )}
+            {showPopup && <Popup textFail="Upload Failed" textSucces="Upload Succesfull!" error={uploadError} />}
             {!uploadLoading ?
                 <button
                     onClick={handleButtonClick}
@@ -101,7 +99,7 @@ export default function UploadButton() {
             {showInput && (
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black p-4 rounded shadow-lg w-[150px] fade-in-scale">
                     {file && (
-                        <div className="mb-2 text-sm text-gray-400">
+                        <div className="font-primary mb-2 text-sm text-gray-400">
                             Selected file: {file.name}
                         </div>
                     )}

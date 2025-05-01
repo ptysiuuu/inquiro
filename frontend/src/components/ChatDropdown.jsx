@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { db, auth } from '../config/firebase';
 import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
 
-export default function ChatDropdown({ selectConversation, conversations, setConversations }) {
+export default function ChatDropdown({ selectConversation, conversations, setConversations, show }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -39,6 +39,7 @@ export default function ChatDropdown({ selectConversation, conversations, setCon
 
     const handleConversationClick = async (conversation) => {
         selectConversation(conversation);
+        show(false);
     };
 
     const deleteConversationWithMessages = async (conversationId) => {

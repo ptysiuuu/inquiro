@@ -4,7 +4,7 @@ import Popup from "./Popup";
 
 import { auth } from "../config/firebase";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function UploadButton({ showUploadInput, setShowUploadInput, setRefresh }) {
     const user = auth.currentUser;

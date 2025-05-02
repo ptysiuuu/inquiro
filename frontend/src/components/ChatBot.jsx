@@ -11,7 +11,7 @@ import { collection, query, orderBy, getDocs, serverTimestamp, addDoc } from 'fi
 import Popup from './Popup';
 import DocDropdown from './DocDropdown';
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Chatbot() {
     const user = auth.currentUser;
@@ -200,7 +200,7 @@ export default function Chatbot() {
                 </div>
                 <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 pr-2 mr-1.5 ">
                     <p className="font-primary text-white rounded-xl px-4 py-2 w-fit">
-                        {selectedConversation.title != undefined ? `Selected chat: ${selectedConversation.title}` : "Select a chat"}
+                        {selectedConversation.title != undefined && `Selected chat: ${selectedConversation.title}`}
                     </p>
                     {isOnChatPage ? <AddConversation
                         setConversations={setConversations}
@@ -235,35 +235,36 @@ export default function Chatbot() {
                 show={setShowConversations}
             />}
             {showDocuments && <DocDropdown refresh={refreshDocuments} setRefresh={setRefreshDocuments} />}
-            <div className="flex flex-col overflow-y-auto max-h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
-                {messages.map((msg, index) => (
-                    <div
-                        key={index}
-                        className={`flex ${msg.senderId === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
+            {selectedConversation.title != undefined ? (
+                <div className="flex flex-col overflow-y-auto max-h-[70vh] h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
+                    {messages.map((msg, index) => (
                         <div
-                            className={`max-w-xl p-3 rounded-lg font-primary ${msg.senderId === 'user'
-                                ? 'bg-[#4F8EF7] text-white'
-                                : 'bg-[#A9B0C3] text-gray-700'
-                                }`}
+                            key={index}
+                            className={`flex ${msg.senderId === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
-                            <TypingEffect text={msg.text} fontSize="text-md" textColor="text-stone-800" effectSpeed={0.02} font="font-sans" />
+                            <div
+                                className={`max-w-xl p-3 rounded-lg font-primary ${msg.senderId === 'user'
+                                    ? 'bg-[#4F8EF7] text-white'
+                                    : 'bg-[#A9B0C3] text-gray-700'
+                                    }`}
+                            >
+                                <TypingEffect text={msg.text} fontSize="text-md" textColor="text-stone-800" effectSpeed={0.02} font="font-sans" />
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
-                {isLoading && (
-                    <div className="flex justify-start">
-                        <div className="max-w-xs p-3 rounded-lg font-primary bg-[#A9B0C3] text-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-bounce">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                            </svg>
+                    {isLoading && (
+                        <div className="flex justify-start">
+                            <div className="max-w-xs p-3 rounded-lg font-primary bg-[#A9B0C3] text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 animate-bounce">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
-            </div>
-
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+            ) : <div className="h-[70vh]"><h1 className="text-white font-primary mt-60 text-5xl">Select a chat</h1></div>}
             <div className="flex justify-center w-full">
                 <div className="flex items-center w-full max-w-7xl bg-transparent border-2 border-white rounded-2xl shadow-md px-4 py-2">
                     <input

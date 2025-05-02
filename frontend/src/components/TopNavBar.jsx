@@ -30,9 +30,15 @@ export default function TopNavBar({ enableDarkMode, darkMode }) {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        if (!isLoggedIn && location.pathname.startsWith("/chat")) {
+            navigate("/auth");
+        }
+    }, [isLoggedIn, location.pathname, navigate]);
+
     const handleLogout = async () => {
         await signOut(auth);
-        navigate('/');
+        navigate('/auth');
     };
 
     const handleClick = () => {
@@ -54,7 +60,7 @@ export default function TopNavBar({ enableDarkMode, darkMode }) {
                     {userEmail && isOnChatPage ? <p
                         className="font-primary text-white rounded-xl px-4 py-2 w-fit"
                     >Logged in as: {userEmail}</p> : undefined}
-                    {isLoggedIn && (
+                    {isLoggedIn && location.pathname.startsWith("/chat") && (
                         <button
                             onClick={handleLogout}
                             className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"

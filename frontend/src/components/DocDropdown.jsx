@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 import { auth } from "../config/firebase";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function DocDropdown({ refresh, setRefresh }) {
     const user = auth.currentUser;
 
@@ -11,7 +13,7 @@ export default function DocDropdown({ refresh, setRefresh }) {
     const fetchDocuments = async () => {
         try {
             const idToken = await user.getIdToken();
-            const response = await fetch('http://localhost:8000/documents', {
+            const response = await fetch(`${apiUrl}/documents`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,7 +48,7 @@ export default function DocDropdown({ refresh, setRefresh }) {
             const user = auth.currentUser;
             const idToken = await user.getIdToken();
 
-            const response = await fetch(`http://localhost:8000/documents/${documentId}`, {
+            const response = await fetch(`${apiUrl}/documents/${documentId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${idToken}`,

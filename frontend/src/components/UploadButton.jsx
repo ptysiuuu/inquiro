@@ -4,6 +4,8 @@ import Popup from "./Popup";
 
 import { auth } from "../config/firebase";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function UploadButton({ showUploadInput, setShowUploadInput, setRefresh }) {
     const user = auth.currentUser;
 
@@ -45,7 +47,7 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await fetch('http://localhost:8000/documents', {
+            const response = await fetch(`${apiUrl}/documents`, {
                 method: 'POST',
                 body: JSON.stringify({ content, name: file.name }),
                 headers: {

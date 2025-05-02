@@ -11,6 +11,8 @@ import { collection, query, orderBy, getDocs, serverTimestamp, addDoc } from 'fi
 import Popup from './Popup';
 import DocDropdown from './DocDropdown';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function Chatbot() {
     const user = auth.currentUser;
     const location = useLocation();
@@ -102,7 +104,7 @@ export default function Chatbot() {
             }));
 
             try {
-                const response = await fetch('http://localhost:8000/chat', {
+                const response = await fetch(`${apiUrl}/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

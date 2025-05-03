@@ -4,6 +4,7 @@ import RootLayout from './pages/Root';
 import ChatPage from './pages/ChatPage';
 import AuthPage from './pages/AuthPage';
 import RegisterPage from './pages/RegisterPage';
+import ErrorPage from './pages/ErrorPage';
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: 'chat',
         element: <ChatPage />,
+      },
+      {
+        path: '*',
+        element: <ErrorPage />,
       },
     ],
   },

@@ -1,5 +1,8 @@
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../config/firebase';
+
+import Popup from './Popup';
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +12,8 @@ export default function AuthForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorCode, setErrorCode] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
+    const [passwordResetError, setPasswordResetError] = useState(false);
 
     const signIn = async (e) => {
         e.preventDefault();
@@ -35,6 +40,19 @@ export default function AuthForm() {
             setErrorCode(error.code);
         }
     }
+
+    const handleResetPassword = async () => {
+        try {
+            await sendPasswordResetEmail(auth, email);
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+        } catch (err) {
+            setPasswordResetError(true);
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+            setPasswordResetError(false);
+        }
+    };
 
     const emailHasError = errorCode === "auth/invalid-email" || errorCode === "auth/user-not-found";
     const passwordHasError = errorCode === "auth/wrong-password";
@@ -68,9 +86,6 @@ export default function AuthForm() {
                     <div>
                         <div className="flex items-center justify-between">
                             <label htmlFor="password" className="block text-sm/6 font-medium">Password</label>
-                            <div className="text-sm">
-                                <a href="#" className="hover:text-stone-300">Forgot password?</a>
-                            </div>
                         </div>
                         <div className="mt-2">
                             <input
@@ -90,7 +105,7 @@ export default function AuthForm() {
                     </div>
 
                     {errorCode && !emailHasError && !passwordHasError && (
-                        <p className="text-red-500 text-sm text-center">Nieprawidłowe dane</p>
+                        <p className="text-red-500 text-sm text-center">Wrong data</p>
                     )}
 
                     <div>
@@ -113,12 +128,15 @@ export default function AuthForm() {
                         Sign in with Google
                     </button>
                 </form>
-
+                <div className="text-sm text-right">
+                    <button onClick={handleResetPassword} className="hover:text-stone-300 cursor-pointer">Reset password</button>
+                </div>
                 <p className="mt-10 text-center text-sm/6 text-gray-500">
                     Don't have an account?
                     <a href="register" className="text-white hover:text-stone-300 ml-1">Register</a>
                 </p>
             </div>
+            {showPopup && <Popup textFail='Error sending password reset email. Please try again.' textSucces='Password reset email sent! Check your inbox.' error={passwordResetError} />}
         </div>
     );
 }

@@ -237,22 +237,37 @@ export default function Chatbot() {
             {showDocuments && <DocDropdown refresh={refreshDocuments} setRefresh={setRefreshDocuments} />}
             {selectedConversation.title != undefined ? (
                 <div className="flex flex-col overflow-y-auto max-h-[70vh] h-[70vh] flex-grow space-y-2 p-2 bg-transparetn dark:bg-transparent w-full max-w-7xl scrollbar-custom">
-                    {messages.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={`flex ${msg.senderId === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div
-                                className={`max-w-xl p-3 rounded-lg font-primary ${msg.senderId === 'user'
-                                    ? 'bg-[#4F8EF7] text-white'
-                                    : 'bg-[#A9B0C3] text-gray-700'
-                                    }`}
-                            >
-                                <TypingEffect text={msg.text} fontSize="text-md" textColor="text-stone-800" effectSpeed={0.014} font="font-sans" />
-                            </div>
-                        </div>
-                    ))}
+                    {messages.map((msg, index) => {
+                        const isLast = index === messages.length - 1;
 
+                        return (
+                            <div
+                                key={index}
+                                className={`flex ${msg.senderId === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div
+                                    className={`max-w-xl p-3 rounded-lg ${msg.senderId === 'user'
+                                        ? 'bg-[#4F8EF7] text-white'
+                                        : 'bg-[#A9B0C3] text-gray-700'
+                                        }`}
+                                >
+                                    {isLast ? (
+                                        <TypingEffect
+                                            text={msg.text}
+                                            fontSize="text-md"
+                                            textColor="text-stone-800"
+                                            effectSpeed={0.014}
+                                            font="font-sans"
+                                        />
+                                    ) : (
+                                        <p className="font-bold font-sans text-md text-stone-800 whitespace-pre-wrap">
+                                            {msg.text}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
                     {isLoading && (
                         <div className="flex justify-start">
                             <div className="max-w-xs p-3 rounded-lg font-primary bg-[#A9B0C3] text-gray-700">

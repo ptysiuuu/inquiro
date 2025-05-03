@@ -198,8 +198,8 @@ export default function Chatbot() {
 
                     </button>
                 </div>
-                <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 pr-2 mr-1.5 ">
-                    <p className="font-primary text-white rounded-xl px-4 py-2 w-fit">
+                <div className="flex justify-end items-center max-w-2xl ml-auto space-x-10 pr-2 mr-1.5">
+                    <p className="font-primary text-white rounded-xl px-4 whitespace-nowrap text-ellipsis">
                         {selectedConversation.title != undefined && `Selected chat: ${selectedConversation.title}`}
                     </p>
                     {isOnChatPage ? <AddConversation
@@ -248,7 +248,7 @@ export default function Chatbot() {
                                     : 'bg-[#A9B0C3] text-gray-700'
                                     }`}
                             >
-                                <TypingEffect text={msg.text} fontSize="text-md" textColor="text-stone-800" effectSpeed={0.02} font="font-sans" />
+                                <TypingEffect text={msg.text} fontSize="text-md" textColor="text-stone-800" effectSpeed={0.014} font="font-sans" />
                             </div>
                         </div>
                     ))}

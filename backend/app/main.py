@@ -8,8 +8,11 @@ from app.auth_utils import get_current_user
 import os
 import requests
 import firebase_admin
+import textwrap
 from firebase_admin import credentials
 
+
+CHUNK_SIZE = 1000
 
 cred = credentials.Certificate("inquiro-ddef8-firebase-adminsdk-fbsvc-bca8667a34.json")
 firebase_admin.initialize_app(cred)
@@ -114,30 +117,44 @@ async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
     user_id = user['user_id']
     conn = await get_db()
     try:
-        embedding = await get_embedding(doc.content)
-        await conn.execute(
-            "INSERT INTO documents (content, embedding, user_id, name) VALUES ($1, $2, $3, $4)",
-            doc.content, embedding, user_id, doc.name
+        result = await conn.fetchrow(
+            "INSERT INTO documents (name, user_id) VALUES ($1, $2) RETURNING id",
+            doc.name, user_id
         )
-        return {"status": "ok"}
+        document_id = result['id']
+
+        chunks = textwrap.wrap(doc.content, CHUNK_SIZE)
+
+        for i, chunk in enumerate(chunks):
+            embedding = await get_embedding(chunk)
+            await conn.execute(
+                """
+                INSERT INTO document_chunks (document_id, chunk_index, content, embedding)
+                VALUES ($1, $2, $3, $4)
+                """,
+                document_id, i, chunk, embedding
+            )
+
+        return {"status": "ok", "chunks": len(chunks), "document_id": document_id}
+
     finally:
         await conn.close()
 
 
 @app.get("/documents")
 async def get_documents(user=Depends(get_current_user)):
-    user_id = user['user_id']
+    user_id = str(user['user_id'])
     conn = await get_db()
     try:
         rows = await conn.fetch(
             """
-            SELECT id, content, user_id, name
+            SELECT id, name, user_id
             FROM documents
-            WHERE user_id = $1
+            WHERE user_id = $1::TEXT
             """,
             user_id
         )
-        results = [{"id": r["id"], "content": r["content"], "name": r["name"]} for r in rows]
+        results = [{"id": r["id"], "name": r["name"]} for r in rows]
 
         return {"docs": results}
     finally:
@@ -153,12 +170,20 @@ async def delete_document(document_id: int, user=Depends(get_current_user)):
             """
             DELETE FROM documents
             WHERE id = $1 AND user_id = $2
-            RETURNING id, name, content
+            RETURNING id, name
             """,
             document_id, user_id
         )
         if not deleted:
             raise HTTPException(status_code=404, detail="Document not found")
+
+        await conn.execute(
+            """
+            DELETE FROM document_chunks
+            WHERE document_id = $1
+            """,
+            document_id
+        )
 
         return deleted
 
@@ -170,19 +195,20 @@ async def get_context(query: str, user_id, top_k: int = 3):
     conn = await get_db()
     try:
         query_embedding = await get_embedding(query)
+
         rows = await conn.fetch(
             """
-            SELECT id, content, user_id
-            FROM documents
-            WHERE embedding <-> $1 < 0.6 AND user_id = $3
-            ORDER BY embedding <-> $1
-            LIMIT $2
+            SELECT dc.id, dc.content, dc.embedding
+            FROM document_chunks dc
+            JOIN documents d ON dc.document_id = d.id
+            WHERE dc.embedding <-> $1 < 0.6 AND d.user_id = $2
+            ORDER BY dc.embedding <-> $1
+            LIMIT $3
             """,
-            query_embedding, top_k, user_id
+            query_embedding, user_id, top_k
         )
-        results = [{"id": r["id"], "content": r["content"]} for r in rows]
 
-        context = [{"role": "system", "content": doc['content']} for doc in results]
+        context = [{"role": "system", "content": r["content"]} for r in rows]
 
         return context
     finally:

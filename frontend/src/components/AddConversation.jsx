@@ -3,6 +3,7 @@ import { auth, db } from "../config/firebase";
 import { collection, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 import Popup from "./Popup";
+import ChatModalPopup from "./ChatModalPopup";
 
 export default function AddConversation({ setConversations, selectConversation }) {
     const [title, setTitle] = useState("");
@@ -12,10 +13,14 @@ export default function AddConversation({ setConversations, selectConversation }
     const [isLoading, setIsLoading] = useState(false);
 
     const handleClick = async () => {
-        setIsLoading(true);
         const user = auth.currentUser;
         if (!user || !title.trim()) return;
 
+        if (title.trim() === "") {
+            alert("title can't be empty!");
+            return;
+        }
+        setIsLoading(true);
         try {
             const conversationDocRef = await addDoc(
                 collection(db, "users", user.uid, "conversations"),
@@ -74,32 +79,26 @@ export default function AddConversation({ setConversations, selectConversation }
             ) : (
                 <>
                     {showPopup && <Popup textFail="Chat creation failed" textSucces="Chat created" error={createError} />}
-                    {!isInputVisible ? (
+                    <>
                         <button
                             className="bg-black dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
                             onClick={() => setIsInputVisible(true)}
                         >
                             New chat
                         </button>
-                    ) : (
-                        <>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="text"
-                                    placeholder="Conversation title"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 p-2 border-2 text-white placeholder:text-white border-white rounded-2xl dark:text-black"
-                                />
-                                <button
-                                    className="bg-black max-h-12 dark:text-black dark:bg-white dark:hover:bg-stone-400 text-white font-primary p-3 rounded-full hover:bg-gray-800 transition cursor-pointer"
-                                    onClick={handleClick}
-                                >
-                                    Create
-                                </button>
-                            </div>
-                        </>
-                    )}
+
+                        <ChatModalPopup
+                            isOpen={isInputVisible}
+                            onClose={() => {
+                                setIsInputVisible(false);
+                                setTitle("");
+                            }}
+                            onSubmit={handleClick}
+                            title={title}
+                            setTitle={setTitle}
+                            isLoading={isLoading}
+                        />
+                    </>
                 </>
             )}
         </div>

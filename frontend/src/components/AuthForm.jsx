@@ -1,5 +1,5 @@
 import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth, googleProvider } from '../config/firebase';
 
 import Popup from './Popup';
 
@@ -59,6 +59,7 @@ export default function AuthForm() {
 
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 text-white">
+            <h1 className="text-5xl mx-auto font-primary">Welcome back!</h1>
             <div className="font-primary mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form className="space-y-6" onSubmit={signIn}>
                     <div>

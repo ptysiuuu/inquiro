@@ -12,6 +12,9 @@ export default function RegisterForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorCode, setErrorCode] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordMismatch, setPasswordMismatch] = useState(false);
+
 
     const initUser = async (userCredential) => {
         const user = userCredential.user;
@@ -43,16 +46,22 @@ export default function RegisterForm() {
     }
 
     const signIn = async (e) => {
-        try {
-            e.preventDefault();
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            initUser(userCredential)
+        e.preventDefault();
+
+        if (password !== confirmPassword) {
+            setPasswordMismatch(true);
+            return;
         }
-        catch (error) {
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            initUser(userCredential);
+        } catch (error) {
             console.log(error);
             setErrorCode(error.code);
         }
-    }
+    };
+
 
     const signInGoogle = async () => {
         try {
@@ -70,6 +79,7 @@ export default function RegisterForm() {
 
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 text-white">
+            <h1 className="text-5xl mx-auto font-primary">Join Inquiro!</h1>
             <div className="font-primary mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form className="space-y-6" onSubmit={signIn}>
                     <div>
@@ -109,6 +119,26 @@ export default function RegisterForm() {
                             />
                             {errorCode === "auth/weak-password" && (
                                 <p className="text-red-500 text-sm mt-1">Password should have at least 6 symbols.</p>
+                            )}
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="confirmPassword" className="block text-sm/6 font-medium">Confirm Password</label>
+                        <div className="mt-2">
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                id="confirmPassword"
+                                required
+                                className={`bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 block w-full rounded-md px-3 py-1.5 text-base placeholder:text-gray-400 sm:text-sm/6 dark:bg-stone-700 dark:text-white ${passwordMismatch ? "border border-red-500" : "outline-1 -outline-offset-1 outline-gray-300"
+                                    }`}
+                                onChange={(e) => {
+                                    setConfirmPassword(e.target.value);
+                                    setPasswordMismatch(false);
+                                }}
+                            />
+                            {passwordMismatch && (
+                                <p className="text-red-500 text-sm mt-1">Passwords do not match.</p>
                             )}
                         </div>
                     </div>

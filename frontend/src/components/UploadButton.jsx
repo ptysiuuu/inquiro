@@ -1,7 +1,5 @@
 import { useState } from "react";
-
 import Popup from "./Popup";
-
 import { auth } from "../config/firebase";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -22,6 +20,12 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
 
     const readFileContent = (file) => {
         return new Promise((resolve, reject) => {
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            if (fileExtension !== 'txt') {
+                reject(new Error('Only .txt files are supported'));
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
             reader.onerror = reject;
@@ -30,9 +34,14 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
     };
 
     const handleUpload = async () => {
-
         if (!file) {
             alert('Choose a file');
+            return;
+        }
+
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (fileExtension !== 'txt') {
+            alert('Only .txt files are allowed');
             return;
         }
 
@@ -43,9 +52,6 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
             const idToken = await user.getIdToken();
             const content = await readFileContent(file);
             setFileContent(content);
-
-            const formData = new FormData();
-            formData.append('file', file);
 
             const response = await fetch(`${apiUrl}/documents`, {
                 method: 'POST',
@@ -76,6 +82,7 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
             setTimeout(() => setShowPopup(false), 3000);
             setTimeout(() => setUploadError(false), 3000);
         }
+
         setUploadLoading(false);
     };
 

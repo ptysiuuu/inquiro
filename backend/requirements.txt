@@ -59,5 +59,5 @@ typing_extensions==4.13.1
 uritemplate==4.1.1
 urllib3==2.4.0
 uvicorn==0.34.0
-PyMuPDF==1.22.5
 python-docx==0.8.11
+python-multipart

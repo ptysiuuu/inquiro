@@ -32,4 +32,4 @@ It's main focus is to implement a RAG-based chatbot, that answers questions base
 
 ## 🌐 Usage  
 Inquiro is currently hosted at this link: [🔗 Visit Inquiro](https://inquiro-two.vercel.app/auth)
-At the moment only .txt documents are supported.
+Files format supported: .docx .txt .pdf

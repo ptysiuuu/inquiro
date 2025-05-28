@@ -101,7 +101,10 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
             {showUploadInput && (
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black p-4 rounded shadow-lg w-[150px] fade-in-scale">
                     {file && (
-                        <div className="font-primary mb-2 text-sm text-gray-400">
+                        <div
+                            className="font-primary mb-2 text-sm text-gray-400 break-words max-w-full"
+                            title={file.name}
+                        >
                             Selected file: {file.name}
                         </div>
                     )}

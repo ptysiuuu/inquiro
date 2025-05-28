@@ -34,10 +34,6 @@ class MessageRequest(BaseModel):
 
 
 origins = [
-    "http://localhost:5173",
-    "localhost:5173",
-    "https://inquiro-1-rai1.onrender.com",
-    "https://inquiro-lrza.onrender.com",
     "https://inquiro-two.vercel.app"
 ]
 

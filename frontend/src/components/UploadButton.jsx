@@ -8,29 +8,21 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
     const user = auth.currentUser;
 
     const [file, setFile] = useState(null);
-    const [fileContent, setFileContent] = useState("");
     const [showPopup, setShowPopup] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [uploadError, setUploadError] = useState(false);
 
     const handleChangeFile = (event) => {
         const selectedFile = event.target.files[0];
+        const allowedExtensions = ['pdf', 'docx', 'txt'];
+        const extension = selectedFile.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+            alert('Only .pdf, .docx and .txt files are allowed');
+            return;
+        }
+
         setFile(selectedFile);
-    };
-
-    const readFileContent = (file) => {
-        return new Promise((resolve, reject) => {
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-            if (fileExtension !== 'txt') {
-                reject(new Error('Only .txt files are supported'));
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsText(file);
-        });
     };
 
     const handleUpload = async () => {
@@ -39,44 +31,38 @@ export default function UploadButton({ showUploadInput, setShowUploadInput, setR
             return;
         }
 
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        if (fileExtension !== 'txt') {
-            alert('Only .txt files are allowed');
-            return;
-        }
-
         setShowUploadInput(false);
         setUploadLoading(true);
 
         try {
             const idToken = await user.getIdToken();
-            const content = await readFileContent(file);
-            setFileContent(content);
 
-            const response = await fetch(`${apiUrl}/documents`, {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('name', file.name);
+
+            const response = await fetch(`${apiUrl}/upload-document`, {
                 method: 'POST',
-                body: JSON.stringify({ content, name: file.name }),
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${idToken}`,
                 },
+                body: formData,
             });
 
             if (!response.ok) {
-                throw new Error('Error while sending file');
+                throw new Error('Error while uploading file');
             }
 
             const result = await response.json();
-            console.log('Sukces:', result);
+            console.log('Upload success:', result);
             setShowPopup(true);
             setTimeout(() => setShowPopup(false), 3000);
 
             setFile(null);
-            setFileContent("");
             setRefresh(true);
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Upload failed:', error);
             setUploadError(true);
             setShowPopup(true);
             setTimeout(() => setShowPopup(false), 3000);

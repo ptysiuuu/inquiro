@@ -11,16 +11,18 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^3.4.0",
-    "@tailwindcss/vite": "^4.0.14",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@tailwindcss/vite": "^4.0.14",
     "firebase": "^11.6.1",
-    "tailwindcss": "^4.0.14",
     "framer-motion": "^12.9.2",
+    "pdfjs-dist": "^5.2.133",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-pdf": "^9.2.1",
+    "tailwindcss": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

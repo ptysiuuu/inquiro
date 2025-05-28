@@ -1,10 +1,13 @@
-from fastapi import FastAPI, HTTPException, Depends, Path
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from app.dbLogic import DocumentIn, get_db, get_embedding
+from app.dbLogic import get_db, get_embedding
 from typing import List
 from app.auth_utils import get_current_user
+import mimetypes
+import fitz
+import docx
 import os
 import requests
 import firebase_admin
@@ -112,18 +115,37 @@ async def chat_with_openai(request: MessageRequest, user=Depends(get_current_use
         raise HTTPException(status_code=500, detail=f"Error while communicating with OpenAI: {e}")
 
 
-@app.post("/documents")
-async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
+@app.post("/upload-document")
+async def upload_document(
+    file: UploadFile = File(...),
+    name: str = Form(...),
+    user=Depends(get_current_user)
+):
     user_id = user['user_id']
+
+    contents = await file.read()
+
+    mime_type = mimetypes.guess_type(file.filename)[0]
+
+    if mime_type == "application/pdf":
+        text = extract_text_from_pdf(contents)
+    elif mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        text = extract_text_from_docx(contents)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="No extractable text found in file")
+
     conn = await get_db()
     try:
         result = await conn.fetchrow(
             "INSERT INTO documents (name, user_id) VALUES ($1, $2) RETURNING id",
-            doc.name, user_id
+            name, user_id
         )
         document_id = result['id']
 
-        chunks = textwrap.wrap(doc.content, CHUNK_SIZE)
+        chunks = textwrap.wrap(text, CHUNK_SIZE)
 
         for i, chunk in enumerate(chunks):
             embedding = await get_embedding(chunk)
@@ -139,6 +161,20 @@ async def add_document(doc: DocumentIn, user=Depends(get_current_user)):
 
     finally:
         await conn.close()
+
+
+def extract_text_from_pdf(contents: bytes) -> str:
+    text = ""
+    with fitz.open("pdf", contents) as doc:
+        for page in doc:
+            text += page.get_text()
+    return text
+
+
+def extract_text_from_docx(contents: bytes) -> str:
+    from io import BytesIO
+    doc = docx.Document(BytesIO(contents))
+    return "\n".join([para.text for para in doc.paragraphs])
 
 
 @app.get("/documents")
